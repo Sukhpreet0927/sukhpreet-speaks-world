@@ -1,38 +1,55 @@
 import { useEffect, useState } from "react";
+import { useTypewriter } from "../hooks/useTypewriter";
 
 const Index = () => {
   const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+  const [currentLanguageIndex, setCurrentLanguageIndex] = useState(0);
 
   const nameVariants = [
     {
       language: "English",
       name: "Sukhpreet Aulakh",
       script: "latin",
-      description: "Your name in English"
-    },
-    {
-      language: "ਪੰਜਾਬੀ (Punjabi)",
-      name: "ਸੁਖਪ੍ਰੀਤ ਔਲਖ",
-      script: "gurmukhi",
-      description: "Your name in Gurmukhi script"
+      description: "Your name in English",
+      color: "text-primary"
     },
     {
       language: "हिंदी (Hindi)",
       name: "सुखप्रीत औलख",
       script: "devanagari",
-      description: "Your name in Devanagari script"
+      description: "Your name in Devanagari script",
+      color: "text-secondary"
+    },
+    {
+      language: "ਪੰਜਾਬੀ (Punjabi)",
+      name: "ਸੁਖਪ੍ਰੀਤ ਔਲਖ",
+      script: "gurmukhi",
+      description: "Your name in Gurmukhi script",
+      color: "text-accent"
     },
     {
       language: "اردو (Urdu)",
       name: "سکھپریت اولکھ",
       script: "arabic",
-      description: "Your name in Arabic script"
+      description: "Your name in Arabic script",
+      color: "text-primary"
     }
   ];
+
+  const { text, currentWordIndex, isTyping } = useTypewriter({
+    words: nameVariants.map(variant => variant.name),
+    typeSpeed: 150,
+    deleteSpeed: 75,
+    delayBetweenWords: 2500,
+    loop: true
+  });
+
+  useEffect(() => {
+    setIsVisible(true);
+    setCurrentLanguageIndex(currentWordIndex);
+  }, [currentWordIndex]);
+
+  const currentVariant = nameVariants[currentLanguageIndex];
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
@@ -55,51 +72,64 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Name variants grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-          {nameVariants.map((variant, index) => (
-            <div
-              key={variant.language}
-              className={`transform transition-all duration-700 hover:scale-105 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
-              style={{ transitionDelay: `${index * 200}ms` }}
+        {/* Dynamic typewriter display */}
+        <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* Current language indicator */}
+          <div className="mb-8">
+            <span className="inline-block px-6 py-3 bg-gradient-primary bg-clip-text text-transparent font-semibold text-lg md:text-xl border border-primary/30 rounded-full backdrop-blur-sm">
+              {currentVariant.language}
+            </span>
+          </div>
+
+          {/* Main typewriter display */}
+          <div className="min-h-[200px] md:min-h-[300px] flex items-center justify-center mb-8">
+            <div 
+              className={`${currentVariant.script === 'arabic' ? 'text-right' : 'text-center'}`}
             >
-              <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 shadow-elegant hover:shadow-cultural transition-all duration-500 group">
-                {/* Language label */}
-                <div className="mb-6">
-                  <span className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20">
-                    {variant.language}
-                  </span>
-                </div>
-
-                {/* Name display */}
-                <div className="mb-6">
-                  <h2 
-                    className={`text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 transition-colors duration-300 group-hover:text-primary ${
-                      variant.script === 'arabic' ? 'text-right' : 'text-center'
-                    }`}
-                    style={{
-                      fontFamily: variant.script === 'devanagari' ? '"Noto Sans Devanagari", sans-serif' :
-                                 variant.script === 'gurmukhi' ? '"Noto Sans Gurmukhi", sans-serif' :
-                                 variant.script === 'arabic' ? '"Noto Naskh Arabic", sans-serif' :
-                                 'inherit'
-                    }}
-                  >
-                    {variant.name}
-                  </h2>
-                </div>
-
-                {/* Description */}
-                <p className="text-muted-foreground text-sm">
-                  {variant.description}
-                </p>
-
-                {/* Decorative line */}
-                <div className="mt-6 h-1 bg-gradient-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              </div>
+              <h1 
+                className={`text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold ${currentVariant.color} transition-colors duration-500`}
+                style={{
+                  fontFamily: currentVariant.script === 'devanagari' ? '"Noto Sans Devanagari", sans-serif' :
+                             currentVariant.script === 'gurmukhi' ? '"Noto Sans Gurmukhi", sans-serif' :
+                             currentVariant.script === 'arabic' ? '"Noto Naskh Arabic", sans-serif' :
+                             'inherit',
+                  lineHeight: '1.1'
+                }}
+              >
+                {text}
+                {/* Animated cursor */}
+                <span 
+                  className={`inline-block w-1 bg-current ml-2 animate-blink`}
+                  style={{
+                    height: '0.8em'
+                  }}
+                >
+                  |
+                </span>
+              </h1>
             </div>
-          ))}
+          </div>
+
+          {/* Language description */}
+          <div className="mb-12">
+            <p className="text-muted-foreground text-base md:text-lg">
+              {currentVariant.description}
+            </p>
+          </div>
+
+          {/* Progress dots */}
+          <div className="flex justify-center space-x-3 mb-12">
+            {nameVariants.map((_, index) => (
+              <div
+                key={index}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentLanguageIndex 
+                    ? 'bg-primary scale-125' 
+                    : 'bg-muted-foreground/30'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Footer message */}
